@@ -1,0 +1,52 @@
+{
+  "info": {
+    "name": "API Fintech",
+    "description": "Prueba CRUD de cuentas en http://localhost:8080. Ejecutar las solicitudes en orden; el ID se captura al crear.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "cuentaId", "value": "" },
+    { "key": "numeroCuentaPrueba", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Listar cuentas",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Responde 200', function () { pm.response.to.have.status(200); });", "pm.test('Devuelve una lista', function () { pm.expect(pm.response.json()).to.be.an('array'); });"] } }],
+      "request": { "method": "GET", "url": "{{baseUrl}}/cuentas" }
+    },
+    {
+      "name": "Crear cuenta",
+      "event": [
+        { "listen": "prerequest", "script": { "type": "text/javascript", "exec": ["pm.collectionVariables.set('numeroCuentaPrueba', 'TST-' + Date.now());"] } },
+        { "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Responde 201', function () { pm.response.to.have.status(201); });", "const cuenta = pm.response.json();", "pm.collectionVariables.set('cuentaId', cuenta.id);", "pm.test('Devuelve el ID creado', function () { pm.expect(cuenta.id).to.be.a('number'); });"] } }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"numero\": \"{{numeroCuentaPrueba}}\",\n  \"tipo\": \"CAJA_AHORRO\",\n  \"saldo\": 25000.00,\n  \"usuarioId\": 1\n}", "options": { "raw": { "language": "json" } } },
+        "url": "{{baseUrl}}/cuentas"
+      }
+    },
+    {
+      "name": "Obtener cuenta creada",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Responde 200', function () { pm.response.to.have.status(200); });", "pm.test('Corresponde a la cuenta creada', function () { pm.expect(pm.response.json().id).to.eql(Number(pm.collectionVariables.get('cuentaId'))); });"] } }],
+      "request": { "method": "GET", "url": "{{baseUrl}}/cuentas/{{cuentaId}}" }
+    },
+    {
+      "name": "Actualizar cuenta creada",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Responde 200', function () { pm.response.to.have.status(200); });", "pm.test('Saldo actualizado', function () { pm.expect(pm.response.json().saldo).to.eql(27500); });"] } }],
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"numero\": \"{{numeroCuentaPrueba}}\",\n  \"tipo\": \"CAJA_AHORRO\",\n  \"saldo\": 27500.00,\n  \"usuarioId\": 1\n}", "options": { "raw": { "language": "json" } } },
+        "url": "{{baseUrl}}/cuentas/{{cuentaId}}"
+      }
+    },
+    {
+      "name": "Eliminar cuenta creada",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.test('Responde 204', function () { pm.response.to.have.status(204); });"] } }],
+      "request": { "method": "DELETE", "url": "{{baseUrl}}/cuentas/{{cuentaId}}" }
+    }
+  ]
+}

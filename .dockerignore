@@ -1,0 +1,13 @@
+.git
+.gitignore
+.mvn/wrapper/maven-wrapper.jar
+target
+docs
+postman
+README.md
+Makefile
+compose.yaml
+Dockerfile
+*.iml
+.idea
+.vscode
